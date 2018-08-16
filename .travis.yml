@@ -1,11 +1,21 @@
 language: java
+
 sudo: false
-install: echo "Skipping default Travis install script!"
+dist: trusty
+
+before_install:
+- unset _JAVA_OPTIONS
+
+install:
+- wget https://github.com/sormuras/bach/raw/master/install-jdk.sh && . ./install-jdk.sh -F $java_version -L $java_license
+
 matrix:
   include:
-  - jdk: openjdk11
-    script:
-    - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh && . ./install-jdk.sh -F 11 -L GPL
+  - jdk: oraclejdk11
+    java_version: 11
+    java_license: BCL
   - jdk: openjdk-ea
-    script:
-    - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh && . ./install-jdk.sh -F ea -L GPL
+    java_version: ea
+    java_license: GPL
+  allow_failures:
+  - jdk: openjdk-ea
