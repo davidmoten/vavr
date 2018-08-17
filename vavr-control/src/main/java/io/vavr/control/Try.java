@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * The {@code Try} control gives us the ability to write safe code without focusing on try-catch blocks in the presence
@@ -103,7 +104,6 @@ import java.util.function.Supplier;
  *
  * <ul>
  * <li>{@link #onFailure(Consumer)}</li>
- * <li>{@link #onFailure(Consumer)}</li>
  * <li>{@link #onSuccess(Consumer)}</li>
  * </ul>
  *
@@ -133,72 +133,6 @@ import java.util.function.Supplier;
  *     }
  * });
  * }</pre>
- *
- * <h2>API: Vavr vs Java vs Scala</h2>
- *
- * Vavr was greatly inspired by Scala and closely aligns to its naming scheme. For example, we make it explicit that a
- * value is pulled out of a {@code Try} by prefixing the method name with 'get':
- *
- * <table>
- * <thead>
- * <tr>
- * <th>io.vavr.control.Try</th>
- * <th>java.util.Optional</th>
- * <th>scala.util.Try</th>
- * </tr>
- * </thead>
- * <tbody>
- * <tr>
- * <td>{@link Try#get()}</td>
- * <td>{@link Optional#get()}</td>
- * <td><a href="https://www.scala-lang.org/api/2.12.3/scala/util/Try.html#get:T">Try.get()</a></td>
- * </tr>
- * <tr>
- * <td>{@link Try#getOrElse(Object)}</td>
- * <td>{@link Optional#orElse(Object)} }</td>
- * <td><a href="https://www.scala-lang.org/api/2.12.3/scala/util/Try.html#getOrElse[U>:T](default:=>U):U">Try.getOrElse(=> T)</a></td>
- * </tr>
- * <tr>
- * <td>{@link Try#getOrElseGet(Supplier)}</td>
- * <td>{@link Optional#orElseGet(Supplier)}</td>
- * <td><a href="https://www.scala-lang.org/api/2.12.3/scala/util/Try.html#getOrElse[U>:T](default:=>U):U">Try.getOrElse(=> T)</a></td>
- * </tr>
- * <tr>
- * <td>{@link Try#getOrElseThrow(Function)}</td>
- * <td>{@link Optional#orElseThrow(Supplier)}</td>
- * <td><a href="https://www.scala-lang.org/api/2.12.3/scala/util/Try.html#getOrElse[U>:T](default:=>U):U">Try.getOrElse(=> T)</a></td>
- * </tr>
- * </tbody>
- * </table>
- *
- * This is distinguishable from a transformation or error recovery:
- *
- * <table>
- * <thead>
- * <tr>
- * <th>io.vavr.control.Try</th>
- * <th>java.util.Optional</th>
- * <th>scala.util.Try</th>
- * </tr>
- * </thead>
- * <tbody>
- * <tr>
- * <td>{@link Try#orElse(Callable)}</td>
- * <td>{@code Optional#or(Supplier)}</td>
- * <td><a href="https://www.scala-lang.org/api/2.12.3/scala/util/Try.html#orElse[U>:T](default:=>scala.util.Try[U]):scala.util.Try[U]">Try.orElse(=> Try[T])</a></td>
- * </tr>
- * <tr>
- * <td>{@link Try#recover(Class, CheckedFunction)}</td>
- * <td>n/a</td>
- * <td><a href="https://www.scala-lang.org/api/2.12.3/scala/util/Try.html#recover[U>:T](pf:PartialFunction[Throwable,U]):scala.util.Try[U]">Try.recover(PartialFunction[Throwable, T])</a></td>
- * </tr>
- * <tr>
- * <td>{@link Try#recoverWith(Class, CheckedFunction)}</td>
- * <td>n/a</td>
- * <td><a href="https://www.scala-lang.org/api/2.12.3/scala/util/Try.html#recoverWith[U>:T](pf:PartialFunction[Throwable,scala.util.Try[U]]):scala.util.Try[U]">Try.recover(PartialFunction[Throwable, Try[T]])</a></td>
- * </tr>
- * </tbody>
- * </table>
  *
  * @param <T> Value type of a successful computation
  * @author Daniel Dietrich
@@ -630,6 +564,35 @@ public abstract class Try<T> implements Iterable<T>, Serializable {
             }
         }
         return this;
+    }
+
+    /**
+     * Converts this {@code Try} to a {@link Stream}.
+     *
+     * @return {@code Stream.of(get()} if this is a success, otherwise {@code Stream.empty()}
+     */
+    public Stream<T> stream() {
+        return isSuccess() ? Stream.of(get()) : Stream.empty();
+    }
+
+    /**
+     * Converts this {@code Try} to an {@link Either}.
+     *
+     * @param <U> the left type of the {@code Either}
+     * @param failureMapper a failure mapper
+     * @return {@code Either.right(get()} if this is a success, otherwise {@code Either.left(failureMapper.apply(getCause())}
+     */
+    public <U> Either<U, T> toEither(Function<? super Throwable, ? extends U> failureMapper) {
+        return isSuccess() ? Either.right(get()) : Either.left(failureMapper.apply(getCause()));
+    }
+
+    /**
+     * Converts this {@code Try} to an {@link Option}.
+     *
+     * @return {@code Option.some(get()} if this is a success, otherwise {@code Option.none()}
+     */
+    public Option<T> toOption() {
+        return isSuccess() ? Option.some(get()) : Option.none();
     }
 
     /**

@@ -902,6 +902,18 @@ class TryTest {
         );
     }
 
+    // -- .stream()
+
+    // TODO
+
+    // -- .toEither(Function)
+
+    // TODO
+
+    // -- .toOption()
+
+    // TODO
+
     // -- .toOptional()
 
     @Test

@@ -1,3 +1,5 @@
+ext.encoding = 'UTF-8'
+ext.javaVersion = 11
 ext.junitVersion = '5.3.0-RC1'
 
 subprojects {
@@ -12,14 +14,10 @@ subprojects {
     version = '1.0.0'
 
     compileJava {
-        sourceCompatibility = 11
-        targetCompatibility = 11
-        options.encoding = 'UTF-8'
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        options.encoding = encoding
         options.compilerArgs = [ '-Xlint:all', '-Werror' ]
-    }
-
-    test {
-        useJUnitPlatform()
     }
 
     dependencies {

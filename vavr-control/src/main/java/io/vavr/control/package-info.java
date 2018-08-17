@@ -1,4 +1,5 @@
 /**
- *  The {@code io.vavr.trycatch} package contains {@link io.vavr.control.Try} for better exception handling in Java.
+ * The {@code io.vavr.control} package contains {@link io.vavr.control.Either}, {@link io.vavr.control.Option} and
+ * {@link io.vavr.control.Try}.
  */
 package io.vavr.control;
